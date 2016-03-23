@@ -1,0 +1,3 @@
+docs.mongodb.org
+docs.python.org
+stackoverflow.com
