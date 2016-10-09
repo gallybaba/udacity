@@ -30,9 +30,9 @@ class LearningAgent(Agent):
         self.state = (None, None, None)
         self.q = {}
         self.r = {}
-        self.gamma = 1
-        self.alpha = 1
-        self.epsilon = 0.0
+        self.gamma = 0.9
+        self.alpha = 0.8
+        self.epsilon = 0.1
         self.stats = stats()
         self.next_state = (None, None, None)
         self.old_waypoint = None
@@ -80,6 +80,8 @@ class LearningAgent(Agent):
         self.next_waypoint = self.planner.next_waypoint()  # from route planner, also displayed by simulator
         self.old_waypoint = self.next_waypoint
         inputs = self.env.sense(self)
+        print "inputs: ", inputs
+        print "waypoint: ", self.next_waypoint
         deadline = self.env.get_deadline(self)
 
         # TODO: Update state
@@ -123,8 +125,11 @@ class LearningAgent(Agent):
         actualQ = self.q[self.state][action_index]
         # Execute action and get reward
         reward = self.env.act(self, action)
+        negative_reward_str = []
         if reward < 0:
             self.stats.poor_choices += 1
+            s = ''.join(["Wrong Action: Light: ", str(self.state[0]), ", Oncoming: ", str(self.state[1]), ", NextWaypoint: ", str(self.state[2]), ", action: " , str(action), ", Reward: ", str(reward)])
+            negative_reward_str.append(s)
 
         # TODO: Learn policy based on state, action, reward
         # act will place agent into next location
@@ -160,7 +165,7 @@ class LearningAgent(Agent):
             self.successfull_runs += 1
             print "Successfull Run: " + str(self.successfull_runs)
 
-        print "LearningAgent.update(): deadline = {}, inputs = {}, action = {}, reward = {}, stats = {}, state = {}, oldwaypoint = {}, nextwaypoint = {}, q = {},  actualQ = {}, maxindex = {}".format(deadline, inputs, action, reward, self.stats, self.state, self.old_waypoint, self.next_waypoint, self.q, actualQ, max_index)  # [debug]
+        print "LearningAgent.update(): deadline = {}, inputs = {}, action = {}, reward = {}, stats = {}, state = {}, oldwaypoint = {}, nextwaypoint = {}, q = {},  actualQ = {}, maxindex = {}, current_negative_reward= {}".format(deadline, inputs, action, reward, self.stats, self.state, self.old_waypoint, self.next_waypoint, self.q, actualQ, max_index, negative_reward_str)  # [debug]
 
 
 def run():
