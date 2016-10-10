@@ -26,15 +26,15 @@ class LearningAgent(Agent):
         self.color = 'red'  # override color
         self.planner = RoutePlanner(self.env, self)  # simple route planner to get next_waypoint
         # TODO: Initialize any additional variables here
-        # Light, Oncoming, NextWaypoint
-        self.state = (None, None, None)
+        # Light, Oncoming, NextWaypoint, Left
+        self.state = (None, None, None, None)
         self.q = {}
         self.r = {}
-        self.gamma = 0.9
-        self.alpha = 0.8
-        self.epsilon = 0.1
+        self.gamma = 1.0
+        self.alpha = 1.0
+        self.epsilon = 0.0
         self.stats = stats()
-        self.next_state = (None, None, None)
+        self.next_state = (None, None, None, None)
         self.old_waypoint = None
         self.successfull_runs = 0
 
@@ -85,7 +85,8 @@ class LearningAgent(Agent):
         deadline = self.env.get_deadline(self)
 
         # TODO: Update state
-        self.state = (inputs['light'], inputs['oncoming'], self.next_waypoint)
+        ### Light, Oncoming, NextWaypoint, Left
+        self.state = (inputs['light'], inputs['oncoming'], self.next_waypoint, inputs['left'])
         self.stats.iteration = self.stats.iteration + 1
         # Control how much you want to explore using epsilon
         shouldExploreCount = math.ceil(self.epsilon * self.stats.iteration)
@@ -139,7 +140,7 @@ class LearningAgent(Agent):
         # lets sense and get next state and set the next state to current
         #self.next_waypoint = self.planner.next_waypoint()  # from route planner, also displayed by simulator
         inputs = self.env.sense(self)
-        self.next_state = (inputs['light'], inputs['oncoming'], self.planner.next_waypoint())
+        self.next_state = (inputs['light'], inputs['oncoming'], self.planner.next_waypoint(), inputs['left'])
         # we need to choose max q from this state.
         self.stats.iteration = self.stats.iteration + 1
         
