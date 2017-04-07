@@ -3,21 +3,37 @@
 
 ## Files
 proposal.ipynb : main implementation file
+
 proposal.pdf   : main report
+
 accurate.PNG   : image used in report to show accuracy comparison 
+
 cnndistribution.PNG : image used in report to show cnn weights and biases
+
 cnnhist.PNG : image used in report to show cnn weights distribution
+
 data.csv : input data for project
+
 entropy-hist.PNG : entropy distribution
+
 graph-cnn-net.png : cnn graph implementation
+
 graph-rnn-net.png : rnn graph implementation
+
 graph-simple-net.png : simple net graph implementation
+
 header.csv : input data header
+
 hidden-hist.PNG : hidden layer distribution for all net
+
 hidden1-distribution.PNG : hidden layer distribution for simple net
+
 learningrate.PNG : learning rate plot
+
 loss.PNG: loss plot for all models
+
 reqids.csv : part of input data for classification of data
+
 xentropy-distribution.PNG : entropy distribution for all models
 
 ## References
