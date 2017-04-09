@@ -36,6 +36,18 @@ reqids.csv : part of input data for classification of data
 
 xentropy-distribution.PNG : entropy distribution for all models
 
+utils.py: utility functions used in data preprocessing and other matters
+
+simple.py: simple net functions to build and run simple model
+
+cnn.py: cnn net functions to build and run cnn model
+
+rnn.py: rnn net functions to build and run rnn model
+
+rnnopt.py: rnn optimized functions
+
+checkpoint_files.sav: stored dictionary of optimized rnn runs. load from pickle
+
 ## References
 https://github.com/tensorflow/tensorflow
 http://pandas.pydata.org/
@@ -49,3 +61,8 @@ https://arxiv.org/abs/1409.3215
 https://arxiv.org/pdf/1603.07285v1.pdf
 http://neuralnetworksanddeeplearning.com/
 http://deeplearning.net/tutorial/
+
+
+```python
+
+```
