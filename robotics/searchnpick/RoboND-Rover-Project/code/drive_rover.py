@@ -60,8 +60,8 @@ class RoverState():
         # when you can keep going and when you should stop.  Feel free to
         # get creative in adding new fields or modifying these!
         self.stop_forward = 50 # Threshold to initiate stopping
-        self.go_forward = 500 # Threshold to go forward again
-        self.max_vel = 2 # Maximum velocity (meters/second)
+        self.go_forward = 2000 # Threshold to go forward again
+        self.max_vel = 3 # Maximum velocity (meters/second)
         # Image output from perception step
         # Update this image to display your intermediate analysis steps
         # on screen in autonomous mode
@@ -71,40 +71,55 @@ class RoverState():
         # obstacles and rock samples
         self.worldmap = np.zeros((200, 200, 3), dtype=np.float) 
         self.samples_pos = None # To store the actual sample positions
-        self.samples_found = 0 # To count the number of samples found
+        self.samples_to_find = 0 # To store the initial count of samples.samples_found = 0 # To count the number of samples found
         self.near_sample = 0 # Will be set to telemetry value data["near_sample"]
         self.picking_up = 0 # Will be set to telemetry value data["picking_up"]
         self.send_pickup = False # Set to True to trigger rock pickup
-        self.is_sample_in_vision = False
-        self.obstacle_angle = 0
-        self.rock_angle = 0
-        self.obstacle_dist = 0
-        self.rock_dist = 0
-        self.min_obstacle_angle = 0
-        self.max_obstacle_angle = 0
-        self.last_pos = None
-        self.last_move = 0
-        self.is_init = True
-        self.last_samples_found = 0
-        self.was_sample_collected = False
-        self.mean_nav_angle = 0
-        self.max_nav_angle = 0
-        self.min_nav_angle = 0
-        self.max_obstacle_angle = 0
-        self.min_obstacle_angle = 0
-        self.mean_nav_dist = 0
-        self.min_nav_dist = 0
-        self.max_nav_dist = 0
-        self.nav_ratio = 0
-        self.obstacle_angles = None
-        self.obstacle_dists = None
-        self.rock_angles = None
-        self.rock_dists = None
-        self.len_navs = 0
-        self.len_obstacles = 0
-        self.len_rock = 0
-        self.nav_ratio_thresh = 3
-        self.in_backup_mode = False
+        
+        ## custom state 
+        ## navigational state
+        self.mean_nav_angle = 0 # mean angle to navigate
+        self.max_nav_angle = 0 # max angle to navigate
+        self.min_nav_angle = 0 # min angle to navigate
+        self.mean_nav_dist = 0 # mean distance to navigate
+        self.min_nav_dist = 0 # min distance to navigate
+        self.max_nav_dist = 0 # max distance to navigate
+        self.nav_ratio = 1 # length of obstacle angles / length of navigable angles
+        self.len_navs = 0 # length of navigational angles
+        
+        ## obstacle state
+        self.mean_obstacle_angle = 0 # mean angle to obstacle
+        self.min_obstacle_angle = 0 # min angle to obstacle
+        self.max_obstacle_angle = 0 # max angle to obstacle
+        self.obstacle_angles = None # obstacle angles list
+        self.obstacle_dists = None # obstacle distances list
+        self.mean_obstacle_dist = 0 # mean distance to obstacle
+        self.len_obstacles = 0 # length of obstacle angles
+        
+        ## rock state
+        self.mean_rock_dist = 0 # mean rock dist from rover
+        self.mean_rock_angle = 0 # mean rock angle from rover
+        self.rock_angles = None # rock angles dist
+        self.rock_dists = None # rock distance dist
+        self.len_rock = 0 # length of rock angles
+        self.is_sample_in_vision = False #do we see a rock near by?
+        
+        ## other state
+        self.last_pos = None # what was rover's last position
+        self.last_move = 0 # how much did we move from last time?
+        self.is_init = True # are we just starting?
+        self.was_sample_collected = False # did rover just pick up a sample?
+        self.nav_ratio_thresh = 3 # length of obstacle angles / length of navigable angles threshold
+        self.in_backup_mode = False # tells state that rover is backing off, -ve velocity
+        self.nav_vision_thresh = 50 # how much we want to see and to filter out far off
+        self.rock_vision_thresh = 60 # how much we want to see and to filter out far off for rocks
+        self.pitch_thresh = 1 # controls whether vision image is updated to manage fidelity
+        self.roll_thresh = 1 # controls whether vision image is updated to manage fidelity
+        self.num_backups = 0 # to store number of times backup is called
+        self.num_unstucks = 0 # to store number of times unstuck is called
+        self.backup_thresh = 3 # number of times after which backup is claimed to not work
+        self.unstuck_thresh = 4 # number of times after which unstuck is claimedto not work
+        
         
 # Initialize our rover 
 Rover = RoverState()
@@ -133,15 +148,12 @@ def telemetry(sid, data):
     if data:
         global Rover
         # Initialize / update Rover with current telemetry
-        print('calling update_rover from telemetry')
         Rover, image = update_rover(Rover, data)
 
         if np.isfinite(Rover.vel):
 
             # Execute the perception and decision steps to update the Rover's state
-            print('calling perception from telemetry')
             Rover = perception_step(Rover)
-            print('calling decision from telemetry')
             Rover = decision_step(Rover)
 
             # Create output images to send to server
@@ -155,7 +167,6 @@ def telemetry(sid, data):
  
             # If in a state where want to pickup a rock send pickup command
             if Rover.send_pickup and not Rover.picking_up:
-                print('send pickup in telemetry')
                 send_pickup()
                 # Reset Rover flags
                 Rover.send_pickup = False
@@ -212,7 +223,6 @@ def send_pickup():
         skip_sid=True)
     eventlet.sleep(0)
     global Rover
-    print('pickingup after send pickup: ', str(Rover.picking_up), ', send_pickup: ' , str(Rover.send_pickup))
     
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Remote Driving')

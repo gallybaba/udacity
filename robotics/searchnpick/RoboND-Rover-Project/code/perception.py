@@ -1,6 +1,12 @@
 import numpy as np
 import cv2
 
+def filter_pixels_by_distance(x, y, distance):
+    filter_mask = np.sqrt(x**2 + y**2) < distance
+    new_x = x[filter_mask]
+    new_y = y[filter_mask]
+    return new_x, new_y
+
 # Identify pixels above the threshold
 # Threshold of RGB > 160 does a nice job of identifying ground pixels only
 def color_thresh(img, rgb_thresh=(160, 160, 160)):
@@ -116,6 +122,7 @@ def perspect_transform(img, src, dst):
     return warped
 
 
+
 # Apply the above functions in succession and update the Rover state accordingly
 def perception_step(Rover):
     # Perform perception steps to update Rover()
@@ -144,77 +151,85 @@ def perception_step(Rover):
         # Example: Rover.vision_image[:,:,0] = obstacle color-thresholded binary image
         #          Rover.vision_image[:,:,1] = rock_sample color-thresholded binary image
         #          Rover.vision_image[:,:,2] = navigable terrain color-thresholded binary image
-    Rover.vision_image[:,:,0] = obstacle_img
-    Rover.vision_image[:,:,1] = rock_img
-    Rover.vision_image[:,:,2] = terrain_img
+    Rover.vision_image[:,:,0] = obstacle_img * 255
+    Rover.vision_image[:,:,1] = rock_img * 255
+    Rover.vision_image[:,:,2] = terrain_img * 255
 
     # 5) Convert map image pixel values to rover-centric coords
+    ### filter near ones and discard far off for world map
     obstacle_rovx, obstacle_rovy = rover_coords(obstacle_img)
-    #print("obstacle rover x len: ", len(obstacle_rovx), ", obstacle rover y len: ", len(obstacle_rovy))
-    rock_rovx, rock_rovy = rover_coords(rock_img)
     
-    #print("rock rover x len: ", len(rock_rovx), ", rock rover y len: ", len(rock_rovy))
+    obstacle_x_filtered, obstacle_y_filtered = filter_pixels_by_distance\
+    (obstacle_rovx, obstacle_rovy, Rover.nav_vision_thresh)
+    print("obstacle x len: ", len(obstacle_x_filtered), ", \
+    obstacle y len: ", len(obstacle_y_filtered))
+    
+    rock_rovx, rock_rovy = rover_coords(rock_img)
+    rock_x_filtered, rock_y_filtered = filter_pixels_by_distance\
+    (rock_rovx, rock_rovy, Rover.rock_vision_thresh)
+    
+    print("rock rover x len: ", len(rock_x_filtered), ", \
+    rock rover y len: ", len(rock_y_filtered))
+    
     terrain_rovx, terrain_rovy = rover_coords(terrain_img)
-    #print("terrain rover x len: ", len(terrain_rovx), ", terrain rover y len: ", len(terrain_rovy))
+    terrain_x_filtered, terrain_y_filtered = filter_pixels_by_distance\
+    (terrain_rovx, terrain_rovy, Rover.nav_vision_thresh)
+    print("terrain x len: ", len(terrain_x_filtered), ", terrain y len: ", len(terrain_y_filtered))
+    
     # 6) Convert rover-centric pixel values to world coordinates
+    ## set init state, last pos and last move
     rover_posx, rover_posy = Rover.pos
     if Rover.last_pos is not None and len(Rover.last_pos) > 0:
-        print('perception last_pos is not none')
         lastx, lasty = Rover.last_pos
         Rover.last_move = np.sqrt((rover_posx - lastx) ** 2 + (rover_posy - lasty) ** 2)      
         Rover.is_init = False
     else:
-        print('perception last pos is none')
         Rover.last_move = 0
-        Rover.max_nav_angle = 0
         Rover.is_init = True
-    
+    ## reset last pos
     Rover.last_pos = Rover.pos[:]
-    print('last move: ', Rover.last_move) 
 
     rover_yaw = Rover.yaw
     world_size = 200
-    scale = 20
-    Rover.is_sample_in_vision = np.any(rock_rovx)
-    print('is_sample_in_vision ', Rover.is_sample_in_vision)
-    if Rover.is_sample_in_vision:
-        rockx = rock_rovx[0]
-        rocky = rock_rovy[0]
-        angle_to_rover = np.arctan2(rocky, rockx) * 180 / np.pi
-        print('calculated angle to rover: ', str(angle_to_rover))
-        Rover.steer = np.clip(angle_to_rover, -15, 15)
-        dist = np.sqrt((rockx - rover_posx)**2 + (rocky - rover_posy)**2)
-        print('distance to rock: ', str(dist))
-        if dist <= 3:
-            Rover.near_sample = True
-            print('near sample set')
-    else:
-        Rover.is_sample_in_vision = False
+    scale = 10
    
     
-    obstacle_dists, obstacle_angles = to_polar_coords(obstacle_rovx, obstacle_rovy)
-    Rover.obstacle_angle = np.mean(obstacle_angles)
-    Rover.obstacle_dist = np.mean(obstacle_dists)
-    Rover.min_obstacle_angle = np.min(obstacle_angles)
-    Rover.max_obstacle_angle = np.max(obstacle_angles)
-    Rover.obstacle_angles = obstacle_angles
-    Rover.obstacle_dists = obstacle_dists
+    obstacle_dists, obstacle_angles = to_polar_coords(obstacle_x_filtered, obstacle_y_filtered)
+    print('perception : obstacle angles: ', len(obstacle_angles))
+    ## if there is any obstacle within filtered region
+    if obstacle_angles is not None and len(obstacle_angles) > 0:
+        Rover.mean_obstacle_angle = np.mean(obstacle_angles * 180 / np.pi)
+        Rover.min_obstacle_angle = np.min(obstacle_angles * 180 / np.pi)
+        Rover.max_obstacle_angle = np.max(obstacle_angles * 180 / np.pi)
+        Rover.obstacle_angles = obstacle_angles
+        Rover.len_obstacles = len(obstacle_angles)
+        Rover.obstacle_dists = obstacle_dists
+        Rover.mean_dist_angle = np.mean(obstacle_dists)
+        Rover.min_dist_angle = np.min(obstacle_dists )
+        Rover.max_dist_angle = np.max(obstacle_dists )
+    else:
+        Rover.mean_obstacle_angle = 0
+        Rover.min_obstacle_angle = 0
+        Rover.max_obstacle_angle = 0
+        Rover.obstacle_angles = 0
+        Rover.len_obstacles = 0
+        Rover.obstacle_dists = 0
+        Rover.mean_dist_angle = 0
+        Rover.min_dist_angle = 0
+        Rover.max_dist_angle = 0
     
     
     
-    obstacle_wx, obstacle_wy = pix_to_world(obstacle_rovx, obstacle_rovy,\
+    obstacle_wx, obstacle_wy = pix_to_world(obstacle_x_filtered, obstacle_y_filtered,\
                                            rover_posx, rover_posy, rover_yaw,\
                                            world_size, scale)
-    rock_wx, rock_wy = pix_to_world(rock_rovx, rock_rovy,\
-                                           rover_posx, rover_posy, rover_yaw,\
-                                           world_size, scale)
-    rock_dists, rock_angles = to_polar_coords(rock_rovx, rock_rovy)
-    Rover.rock_angle = np.mean(rock_angles)
-    Rover.rock_dist = np.mean(rock_dists)
-    Rover.rock_angles = rock_angles
-    Rover.rock_dists = rock_dists
 
-    terrain_wx, terrain_wy = pix_to_world(terrain_rovx, terrain_rovy,\
+    rock_wx, rock_wy = pix_to_world(rock_x_filtered, rock_y_filtered,\
+                                           rover_posx, rover_posy, rover_yaw,\
+                                           world_size, scale)
+
+
+    terrain_wx, terrain_wy = pix_to_world(terrain_x_filtered, terrain_y_filtered,\
                                            rover_posx, rover_posy, rover_yaw,\
                                            world_size, scale)
     
@@ -229,10 +244,56 @@ def perception_step(Rover):
     # Update Rover pixel distances and angles
         # Rover.nav_dists = rover_centric_pixel_distances
         # Rover.nav_angles = rover_centric_angles
-    rover_dists, rover_angles = to_polar_coords(terrain_rovx, terrain_rovy)
-    Rover.nav_dists = rover_dists
-    Rover.nav_angles = rover_angles
-    
+    rover_dists, rover_angles = to_polar_coords(terrain_x_filtered, terrain_y_filtered)
+    print('perception : rover angles: ', len(rover_angles))
+    len_nav = 0
+    if rover_angles is not None and len(rover_angles) > 0:
+        len_nav = len(rover_angles)
+        Rover.nav_dists = rover_dists
+        Rover.nav_angles = rover_angles
+        Rover.mean_nav_angle = np.mean(rover_angles * 180 / np.pi)
+        Rover.min_nav_angle = np.min(rover_angles * 180 / np.pi)
+        Rover.max_nav_angle = np.max(rover_angles * 180 / np.pi)
+        Rover.mean_nav_dist = np.mean(rover_dists)
+        Rover.min_nav_dist = np.min(rover_dists )
+        Rover.max_nav_dist = np.max(rover_dists )
+        Rover.len_navs = len_nav
+        if Rover.len_navs > 0 and Rover.len_obstacles > 0:
+            Rover.nav_ratio = Rover.len_obstacles / Rover.len_navs
+    else:
+        Rover.nav_dists = None
+        Rover.nav_angles = None
+        Rover.mean_nav_angle = 0
+        Rover.min_nav_angle = 0
+        Rover.max_nav_angle = 0
+        Rover.mean_nav_dist = 0
+        Rover.min_nav_dist = 0
+        Rover.max_nav_dist = 0
+        Rover.len_navs = 0
+
+            
+    if Rover.vel < 0:
+        Rover.in_backup_mode = True
+    else:
+        Rover.in_backup_mode = False
+         
+        ## set sample in vision if there are at least 5 pixels showing a rock. removes noise
+    ## around 
+    Rover.is_sample_in_vision = len(rock_x_filtered) > 5
+    if Rover.is_sample_in_vision:
+        rockx = np.mean(rock_x_filtered)
+        rocky = np.mean(rock_y_filtered)
+        angle_to_rover = np.arctan2(rocky, rockx) * 180 / np.pi
+        Rover.steer = np.clip(angle_to_rover, -15, 15)
+        dist = np.sqrt((rockx - rover_posx)**2 + (rocky - rover_posy)**2)
+        Rover.mean_rock_angle = angle_to_rover
+        Rover.mean_rock_dist = dist
+        Rover.len_rock = len(rock_wx)
+    else:
+        Rover.is_sample_in_vision = False
+        Rover.mean_rock_angle = 0
+        Rover.mean_rock_dist = 0
+        Rover.len_rock = 0
     #print('from perception: nav_angles: ', len(Rover.nav_angles), ', nav_dists: ', str(len(Rover.nav_dists)))
     
     
