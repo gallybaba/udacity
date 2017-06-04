@@ -59,6 +59,14 @@ def color_within_thresh(img, rgb_thresh_min=(110, 110, 5), rgb_thresh_max= (255,
     return color_select
 
 
+def color_within_thresh_cv(img, rgb_thresh_min=np.array([5, 110, 110]), rgb_thresh_max= np.array([90, 255, 255])):
+    # rgb_thresh_min=(110, 110, 5), rgb_thresh_max= (255, 255, 90)
+    # convert to hsv
+    img_hsv = cv2.cvtColor(img, cv2.COLOR_RGB2HSV)
+    rock = cv2.inRange(img_hsv, rgb_thresh_min, rgb_thresh_max)
+    return rock
+
+
 # Define a function to convert to rover-centric coordinates
 def rover_coords(binary_img):
     # Identify nonzero pixels
@@ -145,7 +153,7 @@ def perception_step(Rover):
     # 3) Apply color threshold to identify navigable terrain/obstacles/rock samples
     terrain_img = color_thresh(Rover.img)
     obstacle_img = color_below_thresh(Rover.img)
-    rock_img = color_within_thresh(Rover.img)
+    rock_img = color_within_thresh_cv(Rover.img)
        
     # 4) Update Rover.vision_image (this will be displayed on left side of screen)
         # Example: Rover.vision_image[:,:,0] = obstacle color-thresholded binary image
@@ -198,25 +206,25 @@ def perception_step(Rover):
     print('perception : obstacle angles: ', len(obstacle_angles))
     ## if there is any obstacle within filtered region
     if obstacle_angles is not None and len(obstacle_angles) > 0:
-        Rover.mean_obstacle_angle = np.mean(obstacle_angles * 180 / np.pi)
-        Rover.min_obstacle_angle = np.min(obstacle_angles * 180 / np.pi)
-        Rover.max_obstacle_angle = np.max(obstacle_angles * 180 / np.pi)
+        Rover.mean_obstacle_angle = np.mean(obstacle_angles)
+        Rover.min_obstacle_angle = np.min(obstacle_angles)
+        Rover.max_obstacle_angle = np.max(obstacle_angles)
         Rover.obstacle_angles = obstacle_angles
         Rover.len_obstacles = len(obstacle_angles)
         Rover.obstacle_dists = obstacle_dists
-        Rover.mean_dist_angle = np.mean(obstacle_dists)
-        Rover.min_dist_angle = np.min(obstacle_dists )
-        Rover.max_dist_angle = np.max(obstacle_dists )
+        Rover.mean_obstacle_dist = np.mean(obstacle_dists)
+        Rover.min_obstacle_dist = np.min(obstacle_dists )
+        Rover.max_obstacle_dist = np.max(obstacle_dists )
     else:
         Rover.mean_obstacle_angle = 0
         Rover.min_obstacle_angle = 0
         Rover.max_obstacle_angle = 0
-        Rover.obstacle_angles = 0
+        Rover.obstacle_angles = None
         Rover.len_obstacles = 0
-        Rover.obstacle_dists = 0
-        Rover.mean_dist_angle = 0
-        Rover.min_dist_angle = 0
-        Rover.max_dist_angle = 0
+        Rover.obstacle_dists = None
+        Rover.mean_obstacle_dist = 0
+        Rover.min_obstacle_dist = 0
+        Rover.max_obstacle_dist = 0
     
     
     
@@ -251,9 +259,9 @@ def perception_step(Rover):
         len_nav = len(rover_angles)
         Rover.nav_dists = rover_dists
         Rover.nav_angles = rover_angles
-        Rover.mean_nav_angle = np.mean(rover_angles * 180 / np.pi)
-        Rover.min_nav_angle = np.min(rover_angles * 180 / np.pi)
-        Rover.max_nav_angle = np.max(rover_angles * 180 / np.pi)
+        Rover.mean_nav_angle = np.mean(rover_angles)
+        Rover.min_nav_angle = np.min(rover_angles)
+        Rover.max_nav_angle = np.max(rover_angles)
         Rover.mean_nav_dist = np.mean(rover_dists)
         Rover.min_nav_dist = np.min(rover_dists )
         Rover.max_nav_dist = np.max(rover_dists )

@@ -111,14 +111,18 @@ class RoverState():
         self.was_sample_collected = False # did rover just pick up a sample?
         self.nav_ratio_thresh = 3 # length of obstacle angles / length of navigable angles threshold
         self.in_backup_mode = False # tells state that rover is backing off, -ve velocity
-        self.nav_vision_thresh = 50 # how much we want to see and to filter out far off
-        self.rock_vision_thresh = 60 # how much we want to see and to filter out far off for rocks
+        self.nav_vision_thresh = 1000 # how much we want to see and to filter out far off
+        self.rock_vision_thresh = 1000 # how much we want to see and to filter out far off for rocks
         self.pitch_thresh = 1 # controls whether vision image is updated to manage fidelity
         self.roll_thresh = 1 # controls whether vision image is updated to manage fidelity
         self.num_backups = 0 # to store number of times backup is called
         self.num_unstucks = 0 # to store number of times unstuck is called
         self.backup_thresh = 3 # number of times after which backup is claimed to not work
         self.unstuck_thresh = 4 # number of times after which unstuck is claimedto not work
+        self.nav_angle_offset = 1.1 # how much nav angle to offset to avoid sudden stops and turns
+        self.currently_unstucking = False # is rover currently in unstuck mode?
+        self.currently_backing = False # is rover currently in backup mode?
+        self.forward_mode = True
         
         
 # Initialize our rover 
