@@ -134,6 +134,16 @@ def perception_step(Rover):
     # TODO: 
     # NOTE: camera image is coming to you in Rover.img
     # 1) Define source and destination points for perspective transform
+    
+    #if ((Rover.pitch >= Rover.pitch_thresh) & (Rover.pitch <= 360 - Rover.pitch_thresh)):
+    #    Rover.vision_image = np.zeros_like(Rover.img)
+    #    print('pitch over thresh: ', Rover.pitch, ", thresh: ", Rover.pitch_thresh)
+    #    return Rover
+    #elif ((Rover.roll >= Rover.roll_thresh) & (Rover.roll <= 360 - Rover.roll_thresh)):
+    #    Rover.vision_image = np.zeros_like(Rover.img)
+    #    print('roll over thresh: ', Rover.roll, ", thresh: ", Rover.roll_thresh)
+    #    return Rover
+            
     dst_size = 5 
     # Set a bottom offset to account for the fact that the bottom of the image 
     # is not the position of the rover but a bit in front of it
@@ -150,6 +160,7 @@ def perception_step(Rover):
     # 3) Apply color threshold to identify navigable terrain/obstacles/rock samples
     terrain_img = color_thresh(warped)
     Rover.terrain = terrain_img
+    terrain_img = terrain_img - Rover.visited_terrain
     
     obstacle_img = color_below_thresh(warped)
     rock_img = color_within_thresh_cv(warped)
@@ -158,6 +169,9 @@ def perception_step(Rover):
         # Example: Rover.vision_image[:,:,0] = obstacle color-thresholded binary image
         #          Rover.vision_image[:,:,1] = rock_sample color-thresholded binary image
         #          Rover.vision_image[:,:,2] = navigable terrain color-thresholded binary image
+        
+    new_terrain_img = terrain_img - Rover.visited_terrain    
+    zero_image = np.zeros_like(Rover.vision_image)
     Rover.vision_image[:,:,0] = obstacle_img * 255
     Rover.vision_image[:,:,1] = rock_img * 255
     Rover.vision_image[:,:,2] = terrain_img * 255
@@ -205,15 +219,17 @@ def perception_step(Rover):
     print('perception : obstacle angles: ', len(obstacle_angles))
     ## if there is any obstacle within filtered region
     if obstacle_angles is not None and len(obstacle_angles) > 0:
-        Rover.mean_obstacle_angle = np.mean(obstacle_angles)
-        Rover.min_obstacle_angle = np.min(obstacle_angles)
-        Rover.max_obstacle_angle = np.max(obstacle_angles)
+        Rover.mean_obstacle_angle = np.mean(obstacle_angles * 180 / np.pi)
+        max_idx = np.argmax(obstacle_dists)
+        min_idx = np.argmin(obstacle_dists)
+        Rover.min_obstacle_angle = obstacle_angles[min_idx] * 180 / np.pi
+        Rover.max_obstacle_angle = obstacle_angles[max_idx] * 180 / np.pi
         Rover.obstacle_angles = obstacle_angles
         Rover.len_obstacles = len(obstacle_angles)
         Rover.obstacle_dists = obstacle_dists
         Rover.mean_obstacle_dist = np.mean(obstacle_dists)
-        Rover.min_obstacle_dist = np.min(obstacle_dists )
-        Rover.max_obstacle_dist = np.max(obstacle_dists )
+        Rover.min_obstacle_dist = obstacle_dists[min_idx]
+        Rover.max_obstacle_dist = obstacle_dists[max_idx]
     else:
         Rover.mean_obstacle_angle = 0
         Rover.min_obstacle_angle = 0
@@ -257,13 +273,17 @@ def perception_step(Rover):
     if rover_angles is not None and len(rover_angles) > 0:
         len_nav = len(rover_angles)
         Rover.nav_dists = rover_dists
+        min_idx = np.argmin(rover_dists)
+        max_idx = np.argmax(rover_dists)
         Rover.nav_angles = rover_angles
-        Rover.mean_nav_angle = np.mean(rover_angles)
-        Rover.min_nav_angle = np.min(rover_angles)
-        Rover.max_nav_angle = np.max(rover_angles)
+        Rover.mean_nav_angle = np.mean(rover_angles * 180 / np.pi)
+        Rover.min_nav_angle = rover_angles[min_idx] * 180 / np.pi
+        Rover.max_nav_angle = rover_angles[max_idx] * 180 / np.pi
+        ## debug
+        print('perception do we get the same angle if directly calculated: ', np.max(rover_angles * 180 / np.pi))
         Rover.mean_nav_dist = np.mean(rover_dists)
-        Rover.min_nav_dist = np.min(rover_dists )
-        Rover.max_nav_dist = np.max(rover_dists )
+        Rover.min_nav_dist = rover_dists[min_idx]
+        Rover.max_nav_dist = rover_dists[max_idx]
         Rover.len_navs = len_nav
         if Rover.len_navs > 0 and Rover.len_obstacles > 0:
             Rover.nav_ratio = Rover.len_obstacles / Rover.len_navs
