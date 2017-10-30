@@ -1,0 +1,83 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" DefaultTargets="Build">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{240c3e03-cf51-44da-9f82-f0b2bbb02076}</ProjectGuid>
+    <ProjectHome />
+    <StartupFile />
+    <SearchPath />
+    <WorkingDirectory>.</WorkingDirectory>
+    <OutputPath>.</OutputPath>
+    <ProjectTypeGuids>{888888a0-9f3d-457c-b088-3a5042f75d52}</ProjectTypeGuids>
+    <LaunchProvider>Standard Python launcher</LaunchProvider>
+    <InterpreterId>{9a7a9026-48c1-4688-9d5d-e5699d47d074}</InterpreterId>
+    <InterpreterVersion>3.5</InterpreterVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)' == 'Debug'" />
+  <PropertyGroup Condition="'$(Configuration)' == 'Release'" />
+  <PropertyGroup>
+    <VisualStudioVersion Condition=" '$(VisualStudioVersion)' == '' ">10.0</VisualStudioVersion>
+    <PtvsTargetsFile>$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets</PtvsTargetsFile>
+  </PropertyGroup>
+  <ItemGroup>
+    <Content Include=".ipynb_checkpoints\cnn-checkpoint.ipynb" />
+    <Content Include=".ipynb_checkpoints\logisticregression-checkpoint.ipynb" />
+    <Content Include=".ipynb_checkpoints\logistictutorial-checkpoint.ipynb" />
+    <Content Include=".ipynb_checkpoints\multilayerperceptron-checkpoint.ipynb" />
+    <Content Include=".ipynb_checkpoints\proposal-checkpoint.ipynb" />
+    <Content Include=".ipynb_checkpoints\proposal-different-cvset-checkpoint.ipynb" />
+    <Content Include=".ipynb_checkpoints\README-checkpoint.ipynb" />
+    <Content Include="accurate.PNG" />
+    <Content Include="cnn.ipynb" />
+    <Content Include="cnndistribution.PNG" />
+    <Content Include="cnnhist.PNG" />
+    <Content Include="entropy-hist.PNG" />
+    <Content Include="graph-cnn-net.png" />
+    <Content Include="graph-rnn-net.png" />
+    <Content Include="graph-simple-net.png" />
+    <Content Include="hidden-hist.PNG" />
+    <Content Include="hidden1-distribution.PNG" />
+    <Content Include="learningrate.PNG" />
+    <Content Include="logisticregression.ipynb" />
+    <Content Include="logistictutorial.ipynb" />
+    <Content Include="loss.PNG" />
+    <Content Include="multilayerperceptron.ipynb" />
+    <Content Include="proposal-different-cvset.ipynb" />
+    <Content Include="proposal.ipynb" />
+    <Content Include="README.ipynb" />
+    <Content Include="README.md" />
+    <Content Include="xentropy-distribution.PNG" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include=".ipynb_checkpoints" />
+  </ItemGroup>
+  <ItemGroup>
+    <InterpreterReference Include="{9a7a9026-48c1-4688-9d5d-e5699d47d074}\3.5" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="cnn.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="main.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="rnn.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="rnnopt.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="simple.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="svm.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="utils.py">
+      <SubType>Code</SubType>
+    </Compile>
+  </ItemGroup>
+  <Import Project="$(PtvsTargetsFile)" Condition="Exists($(PtvsTargetsFile))" />
+  <Import Project="$(MSBuildToolsPath)\Microsoft.Common.targets" Condition="!Exists($(PtvsTargetsFile))" />
+</Project>
