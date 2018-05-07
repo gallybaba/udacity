@@ -15,9 +15,11 @@ Red Wine Quality Analysis by Karun Gahlawat
 # want it to. This will clean up the flow of your report.
 
 library(ggplot2)
+#packageVersion('ggplot2')
 library(knitr)
 library(dplyr)
 library(reshape2)
+library(scales)
 ```
 
 ```{r echo=FALSE, Load_the_Data}
@@ -145,11 +147,6 @@ of the data? If so, why did you do this?
 
 # Bivariate Plots Section
 
-> **Tip**: Based on what you saw in the univariate plots, what relationships
-between variables might be interesting to look at in this section? Don't limit
-yourself to relationships between a main output feature and one of the
-supporting variables. Try to look at relationships between supporting variables
-as well.
 
 
 ```{r echo=FALSE, Bivariate_Plots_Means}
@@ -173,7 +170,7 @@ pairs(rwdata[,2:13])
 ```
 
 ```{r echo=FALSE, Bivariate_Plots_Fixed.Acidity}
-fixed.acidity_quality <- ggplot(rwdata, aes(x=quality, y=rwdata$fixed.acidity, fill=quality)) + geom_boxplot(color="red", aes(group=quality), outlier.alpha=.2) + facet_wrap(~quality, ncol = 3) + ylab("Fixed Acidity")+ stat_summary(fun.y = mean, geom="point", shape=5, size=1, color="green")
+fixed.acidity_quality <- ggplot(rwdata, aes(x=quality, y=rwdata$fixed.acidity, fill=quality)) + geom_boxplot(color="red", aes(group=quality)) + facet_wrap(~quality, ncol = 3) + ylab("Fixed Acidity")+ stat_summary(fun.y = mean, geom="point", shape=5, size=1, color="green")
 fixed.acidity_quality <- fixed.acidity_quality + theme(axis.text = element_text(angle=45, hjust = 1))
 print(fixed.acidity_quality)
 
@@ -182,14 +179,14 @@ print(fixed.acidity_quality)
 
 ```{r echo=FALSE, Bivariate_Plots_Volatility.Acidity}
 
-volatile.acidity_quality <- ggplot(rwdata, aes(x=quality, y=rwdata$volatile.acidity, fill=quality)) + geom_boxplot(color="orange", aes(group=quality), outlier.alpha=.2) + facet_wrap(~quality, ncol = 3) + ylab("Volatile Acidity")+ stat_summary(fun.y = mean, geom="point", shape=5, size=1, color="green")
+volatile.acidity_quality <- ggplot(rwdata, aes(x=quality, y=rwdata$volatile.acidity, fill=quality)) + geom_boxplot(color="orange", aes(group=quality)) + facet_wrap(~quality, ncol = 3) + ylab("Volatile Acidity")+ stat_summary(fun.y = mean, geom="point", shape=5, size=1, color="green")
 volatile.acidity_quality <- volatile.acidity_quality + theme(axis.text = element_text(angle=45, hjust = 1))
 print(volatile.acidity_quality)
 
 ```
 ```{r echo=FALSE, Bivariate_Plots_Citric.Acid}
 
-citric.acid_quality <- ggplot(rwdata, aes(x=quality, y=rwdata$citric.acid, fill=quality)) + geom_boxplot(color="blue", aes(group=quality), outlier.alpha=.2) + facet_wrap(~quality, ncol = 3) + ylab("Citric Acid") + stat_summary(fun.y = mean, geom="point", shape=5, size=1, color="red")
+citric.acid_quality <- ggplot(rwdata, aes(x=quality, y=rwdata$citric.acid, fill=quality)) + geom_boxplot(color="blue", aes(group=quality)) + facet_wrap(~quality, ncol = 3) + ylab("Citric Acid") + stat_summary(fun.y = mean, geom="point", shape=5, size=1, color="red")
 citric.acid_quality <- citric.acid_quality + theme(axis.text = element_text(angle=45, hjust = 1))
 print(citric.acid_quality)
 
@@ -201,7 +198,7 @@ lines is treated as a single space. Make sure you have a blank line between
 your paragraphs so that they too are formatted for easy readability.
 
 ```{r echo=FALSE, Bivariate_Plots_Residual.Sugar}
-residual.sugar_quality <- ggplot(rwdata, aes(x=quality, y=rwdata$residual.sugar, fill=quality)) + geom_boxplot(color="green", aes(group=quality), outlier.alpha=.2) + facet_wrap(~quality, ncol = 3) + ylab("Residual Sugar") + stat_summary(fun.y = mean, geom="point", shape=5, size=1, color="red")
+residual.sugar_quality <- ggplot(rwdata, aes(x=quality, y=rwdata$residual.sugar, fill=quality)) + geom_boxplot(color="green", aes(group=quality)) + facet_wrap(~quality, ncol = 3) + ylab("Residual Sugar") + stat_summary(fun.y = mean, geom="point", shape=5, size=1, color="red")
 residual.sugar_quality <- residual.sugar_quality + theme(axis.text = element_text(angle=45, hjust = 1))
 print(residual.sugar_quality)
 
@@ -210,7 +207,7 @@ print(residual.sugar_quality)
 
 ```{r echo=FALSE, Bivariate_Plots_Chlorides}
 
-chlorides_quality <- ggplot(rwdata, aes(x=quality, y=rwdata$chlorides, fill=quality)) + geom_boxplot(color="yellow", aes(group=quality), outlier.alpha=.2) + facet_wrap(~quality, ncol = 3) + ylab("Chlorides") + stat_summary(fun.y = mean, geom="point", shape=5, size=1, color="red")
+chlorides_quality <- ggplot(rwdata, aes(x=quality, y=rwdata$chlorides, fill=quality)) + geom_boxplot(color="yellow", aes(group=quality)) + facet_wrap(~quality, ncol = 3) + ylab("Chlorides") + stat_summary(fun.y = mean, geom="point", shape=5, size=1, color="red")
 chlorides_quality <- chlorides_quality + theme(axis.text = element_text(angle=45, hjust = 1))
 print(chlorides_quality)
 
@@ -219,7 +216,7 @@ print(chlorides_quality)
 
 ```{r echo=FALSE, Bivariate_Plots_Free.Sulphur.Dioxide}
 
-free.sulfur.dioxide_quality <- ggplot(rwdata, aes(x=quality, y=rwdata$free.sulfur.dioxide, fill=quality)) + geom_boxplot(color="grey", aes(group=quality), outlier.alpha=.2) + facet_wrap(~quality, ncol = 3) + ylab("Free Sulfur Dioxide") + stat_summary(fun.y = mean, geom="point", shape=5, size=1, color="red")
+free.sulfur.dioxide_quality <- ggplot(rwdata, aes(x=quality, y=rwdata$free.sulfur.dioxide, fill=quality)) + geom_boxplot(color="grey", aes(group=quality)) + facet_wrap(~quality, ncol = 3) + ylab("Free Sulfur Dioxide") + stat_summary(fun.y = mean, geom="point", shape=5, size=1, color="red")
 free.sulfur.dioxide_quality <- free.sulfur.dioxide_quality + theme(axis.text = element_text(angle=45, hjust = 1))
 print(free.sulfur.dioxide_quality)
 
@@ -227,7 +224,7 @@ print(free.sulfur.dioxide_quality)
 
 ```{r echo=FALSE, Bivariate_Plots_Total.Sulphur.Dioxide}
 
-total.sulfur.dioxide_quality <- ggplot(rwdata, aes(x=quality, y=rwdata$total.sulfur.dioxide, fill=quality)) + geom_boxplot(color="magenta", aes(group=quality), outlier.alpha=.2) + facet_wrap(~quality, ncol = 3) + ylab("Total Sulfur Dioxide") + stat_summary(fun.y = mean, geom="point", shape=5, size=1, color="red")
+total.sulfur.dioxide_quality <- ggplot(rwdata, aes(x=quality, y=rwdata$total.sulfur.dioxide, fill=quality)) + geom_boxplot(color="magenta", aes(group=quality)) + facet_wrap(~quality, ncol = 3) + ylab("Total Sulfur Dioxide") + stat_summary(fun.y = mean, geom="point", shape=5, size=1, color="red")
 total.sulfur.dioxide_quality <- total.sulfur.dioxide_quality + theme(axis.text = element_text(angle=45, hjust = 1))
 print(total.sulfur.dioxide_quality)
 
@@ -236,7 +233,7 @@ print(total.sulfur.dioxide_quality)
 
 ```{r echo=FALSE, Bivariate_Plots_Density}
 
-density_quality <- ggplot(rwdata, aes(x=quality, y=rwdata$density, fill=quality)) + geom_boxplot(color="brown", aes(group=quality), outlier.alpha=.2) + facet_wrap(~quality, ncol = 3) + ylab("Density") + stat_summary(fun.y = mean, geom="point", shape=5, size=1, color="red")
+density_quality <- ggplot(rwdata, aes(x=quality, y=rwdata$density, fill=quality)) + geom_boxplot(color="brown", aes(group=quality)) + facet_wrap(~quality, ncol = 3) + ylab("Density") + stat_summary(fun.y = mean, geom="point", shape=5, size=1, color="red")
 density_quality <- density_quality + theme(axis.text = element_text(angle=45, hjust = 1))
 print(density_quality)
 
@@ -244,7 +241,7 @@ print(density_quality)
 
 ```{r echo=FALSE, Bivariate_Plots_PH}
 
-pH_quality <- ggplot(rwdata, aes(x=quality, y=rwdata$pH, fill=quality)) + geom_boxplot(color="purple", aes(group=quality), outlier.alpha=.2) + facet_wrap(~quality, ncol = 3) + ylab("pH") + stat_summary(fun.y = mean, geom="point", shape=5, size=1, color="red")
+pH_quality <- ggplot(rwdata, aes(x=quality, y=rwdata$pH, fill=quality)) + geom_boxplot(color="purple", aes(group=quality)) + facet_wrap(~quality, ncol = 3) + ylab("pH") + stat_summary(fun.y = mean, geom="point", shape=5, size=1, color="red")
 pH_quality <- pH_quality + theme(axis.text = element_text(angle=45, hjust = 1))
 print(pH_quality)
 
@@ -253,7 +250,7 @@ print(pH_quality)
 
 ```{r echo=FALSE, Bivariate_Plots_Suplhates}
 
-sulphates_quality <- ggplot(rwdata, aes(x=quality, y=rwdata$sulphates, fill=quality)) + geom_boxplot(color="black", aes(group=quality), outlier.alpha=.2) + facet_wrap(~quality, ncol = 3) + ylab("Sulphates") + stat_summary(fun.y = mean, geom="point", shape=5, size=1, color="red")
+sulphates_quality <- ggplot(rwdata, aes(x=quality, y=rwdata$sulphates, fill=quality)) + geom_boxplot(color="black", aes(group=quality)) + facet_wrap(~quality, ncol = 3) + ylab("Sulphates") + stat_summary(fun.y = mean, geom="point", shape=5, size=1, color="red")
 sulphates_quality <- sulphates_quality + theme(axis.text = element_text(angle=45, hjust = 1))
 print(sulphates_quality)
 
@@ -261,7 +258,7 @@ print(sulphates_quality)
 
 ```{r echo=FALSE, Bivariate_Plots_Alcohol}
 
-alcohol_quality <- ggplot(rwdata, aes(x=quality, y=rwdata$alcohol, fill=quality)) + geom_boxplot(color="violet", aes(group=quality), outlier.alpha=.2) + facet_wrap(~quality, ncol = 3) + ylab("Alcohol") + stat_summary(fun.y = mean, geom="point", shape=5, size=1, color="red")
+alcohol_quality <- ggplot(rwdata, aes(x=quality, y=rwdata$alcohol, fill=quality)) + geom_boxplot(color="violet", aes(group=quality)) + facet_wrap(~quality, ncol = 3) + ylab("Alcohol") + stat_summary(fun.y = mean, geom="point", shape=5, size=1, color="red")
 alcohol_quality <- alcohol_quality + theme(axis.text = element_text(angle=45, hjust = 1))
 print(alcohol_quality)
 
@@ -277,8 +274,6 @@ print(alcohol_quality)
 
 # Bivariate Analysis
 
-> **Tip**: As before, summarize what you found in your bivariate explorations
-here. Use the questions below to guide your discussion.
 
 ### Talk about some of the relationships you observed in this part of the \
 investigation. How did the feature(s) of interest vary with other features in \
@@ -320,12 +315,6 @@ Alcohol is not going along with any other feature except Density. It seem to neg
 
 # Multivariate Plots Section
 
-> **Tip**: Now it's time to put everything together. Based on what you found in
-the bivariate plots section, create a few multivariate plots to investigate
-more complex interactions between variables. Make sure that the plots that you
-create here are justified by the plots you explored in the previous section. If
-you plan on creating any mathematical models, this is the section where you
-will do that.
 
 
 ```{r echo=FALSE, Multivariate_Plots.Corr}
@@ -348,8 +337,8 @@ print(inferplotph)
 ```
 ```{r echo=FALSE, Multivariate_Plots.ABLine}
 
-inferplotph <- ggplot(rwdata, aes(x=X)) + geom_point(aes(y=pH, color="blue")) + geom_point(aes(y=density, color="red")) + geom_point(aes(y=citric.acid, color="yellow")) + geom_point(aes(y=alcohol, color="green")) + geom_point(aes(y=total.sulfur.dioxide, color="orange")) + theme(axis.text = element_text(angle=45, hjust=1)) + scale_color_manual(name="All Factors Chosen", values=c("blue"="blue", "red"="red", "yellow"="yellow", "green"="green", "orange"="orange"), labels=c("pH", "Density", "Citric Acid", "Alcohol", "Total Sulfur Dioxide")) + ylab("Factors")
-print(inferplotph)
+inferplotden <- ggplot(rwdata, aes(x=X)) + geom_point(aes(y=volatile.acidity, color="blue")) + geom_point(aes(y=density, color="red")) + geom_point(aes(y=residual.sugar, color="yellow")) + geom_point(aes(y=alcohol, color="green")) + theme(axis.text = element_text(angle=45, hjust=1)) + scale_color_manual(name="All Factors Chosen", values=c("blue"="blue", "red"="red", "yellow"="yellow", "green"="green", "orange"="orange"), labels=c("VolatileAcidity", "Density", "ResidualSugar", "Alcohol")) + ylab("Factors")
+print(inferplotden)
 ```
 ```{r echo=FALSE, Multivariate_Plots}
 generate_line <- function(data, intercept, ph, density, citric.acid, alcohol, total.sulfur.dioxide){
@@ -394,10 +383,10 @@ print(coeffs3plot)
 
 ```{r echo=FALSE, Multivariate_Plots.Model4}
 
-infermodel4 <- lm(quality ~ density, data=rwdata_corr)
+infermodel4 <- lm(quality ~ density + alcohol, data=rwdata_corr)
 infermodel4
 summary(infermodel4)
-coeffs4 <- as.data.frame(coefficients(summary(infermodel4))[1:2,c("Estimate")])
+coeffs4 <- as.data.frame(coefficients(summary(infermodel4))[1:3,c("Estimate")])
 colnames(coeffs4) <- c("Coefficient")
 coeffs4plot <- ggplot(coeffs4, aes(x = rownames(coeffs4), y = Coefficient)) + geom_bar(stat="identity") + ylab("Coefficients") + xlab("Factors")
 print(coeffs4plot)
@@ -432,45 +421,61 @@ strengths and limitations of your model.
 
 # Final Plots and Summary
 
-> **Tip**: You've done a lot of exploration and have built up an understanding
-of the structure of and relationships between the variables in your dataset.
-Here, you will select three plots from all of your previous exploration to
-present here as a summary of some of your most interesting findings. Make sure
-that you have refined your selected plots for good titling, axis labels (with
-units), and good aesthetic choices (e.g. color, transparency). After each plot,
-make sure you justify why you chose each plot by describing what it shows.
 
 ### Plot One
 ```{r echo=FALSE, Plot_One}
 
+rwdata_corr <- select(rwdata, -(c(X)))
+corrplot <- ggplot(melt(cor(rwdata_corr)), aes(x=Var1, y=Var2, fill=value)) + geom_tile() + theme(axis.text = element_text(angle=45, hjust=1))
+print(corrplot)
 ```
 
 ### Description One
+> Plot one tells a lot about the dataset in a very small space. It compares every factor chosen with all other factors and shows them side by side. If you pick one row or one column, you can see how other factors correlate with the chosen factor (row/col we chose). The darker the color, the lower the correlation is, even negative. The brighter the color is the higher the correlation. The legend on the right tells range of values matching color. Lets take an example. Lets pick pH from 4th column from right. We will go from bottom to top. Bottom row and pH column is correlation with fixed.acidity. The color on that box is really dark indicating very low correlation between fixed.acidity and pH. Even negative. The next higher row in pH column is correlation with volatile.acidity. Comparing the color with the legend it indicates around 0.5. So on we can tell this relation ship for any factor.
+> Note that the diagonal from top right to bottom left is the brightest. This make sense as each of this box is a correlation with itself which has to be 1.
+
 
 
 ### Plot Two
 ```{r echo=FALSE, Plot_Two}
-
+inferplotden <- ggplot(rwdata, aes(x=X)) + geom_point(aes(y=volatile.acidity, color="blue")) + geom_point(aes(y=density, color="red")) + geom_point(aes(y=residual.sugar, color="yellow")) + geom_point(aes(y=alcohol, color="green")) + theme(axis.text = element_text(angle=45, hjust=1)) + scale_color_manual(name="All Factors Chosen", values=c("blue"="blue", "red"="red", "yellow"="yellow", "green"="green", "orange"="orange"), labels=c("VolatileAcidity", "Density", "ResidualSugar", "Alcohol")) + ylab("Factors")
+print(inferplotden)
 ```
 
 ### Description Two
 
+> I chose this plot because it shows the spread of factors in the distribution and how density dominates this spread. We have here three kinds of spreads. One very tightly distributed where most of the points are close to mean and none to little away from mean. These include Residual Sugar and Volatile Acidity. Second is data points close to mean and away but highly skewed. Meaning more data points on one side of the mean than other and hence breaking symmetry. Alcohol falls into this category. Third is most data points along the mean and the ones away from mean are more or less on both sides of the mean. Density falls into this category.
+
+> It is very interesting to know how density is scatterred near normally. It raises curosity how it effects quality. That is what I explored in next plot. I like red wine personally and I keep trying new labels regularly and I noticed the change in wine quality with density. also noticed the change in color with density. Lets see how the next plot ties our intuition with facts.
 
 ### Plot Three
 ```{r echo=FALSE, Plot_Three}
-
+infermodel4 <- lm(quality ~ density + alcohol, data=rwdata_corr)
+infermodel4
+summary(infermodel4)
+coeffs4 <- as.data.frame(coefficients(summary(infermodel4))[1:3,c("Estimate")])
+colnames(coeffs4) <- c("Coefficient")
+coeffs4plot <- ggplot(coeffs4, aes(x = rownames(coeffs4), y = Coefficient)) + geom_bar(stat="identity") + ylab("Coefficients") + xlab("Factors")
+print(coeffs4plot)
 ```
 
 ### Description Three
-
+> I chose this plot to complete our exploration of above plot. This plot is a linear model showing effects of density and alcohol combined to quality of wine. The chart above is a plot of how coefficients of density and alcohol measure along with interception coefficient. The Console shows similar things in numbers and model output. As we show these coefficients, we understand that the coefficient of density is substantially larger than alcohol. This means that a small change in density substantially changes the quality of wine. As compared to density, alcohol coefficient is very small. Smalle coefficient means alcohol needs to change a lot for quality to change.
+> Along with density and alcohol, we also notice that model is heavily biased with the intercept coefficient substantially large and negative. It tells us whatever density changes does to quality of wine, bias in model undoes it more or less. Overall, there is no good linear model to explain how these factors effect quality of wine!
 ------
 
 # Reflection
 
-> **Tip**: Here's the final step! Reflect on the exploration you performed and
-the insights you found. What were some of the struggles that you went through?
-What went well? What was surprising? Make sure you include an insight into
-future work that could be done with the dataset.
+> Data set explored here is already tidy so not much cleanup or mining to do here. That made exploration job little easier. The plan of action then is to explore each factor on its own, then see how they behave with each other and then notice how they behave with quality of wine. 
 
-> **Tip**: Don't forget to remove this, and the other **Tip** sections before
-saving your final work and knitting the final report!
+> For individual factors I plotted scatter and histogram along with basic descriptive statistics like mean etc... Scatter plot gives an initial intuition around distribution of a factor in the dataset. Histogram tunes it a little bit showing how close or far is the distribution to normal. Initially I tried to code each factor but then decided to plot in a loop. Looks more efficient that way. 
+
+> Another step was to see how means of factors of wines with quality 8 or more compared with overall means of factors. Which factors mean were close the good wines means?
+
+> Another step to continue explore how factors behave was to plot box plots filled by quality. I wanted to see how the distrbution looks like for each quality rating. Mins, Maxs, overall spreads, how far apart are some points from mean and the lower and higher quartile. Fitting box plots took some time and ggplot fiddling. Finally I got to a point where plots looks decent with some story to tell. It was interesting to find distribution of higher quality wines of most of our factors are pretty close to mean.
+
+> Exploration would be incomplete without correlation plot of all factors with each other. This also took some learning and struggle. Along with learning it surprised me that none of the factors were highly correlated with quality. This is also the first time I found that density plays some important role.
+
+> Correlation plot gave some important looking factors and I scatter plotted them together. Here also I noticed density playing an important role along with alcohol. It was not time to make models and see how all this intuition is following with numbers. I linear modelled some the combinations and finally density and alcohol together. I was surprised to see alcholol playing no role to effect quality. I was also surprised that none of the linear models clearly explained change in quality with change in factors. The R value is too little to give any major credibility to any of the models. One interesting find was to re assure what we intuited about density and what I see in real life as well! Good to know math works!
+
+> It is clear that linear relationship does not play here. So next steps would be to apply non linear models like logistic regression. With more data, some deep learning methedology could also be utilized to learn how factors contribute to quality. SVMs can be used to cluster some factors and see if we can reduce some dimensionality and try other models like random forest.
