@@ -1,0 +1,4 @@
+http://www.stackoverflow.com
+http://ggplot2.tidyverse.org/reference/
+https://cran.r-project.org/web/packages/ggplot2/ggplot2.pdf
+https://www.r-bloggers.com/melt/
